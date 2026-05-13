@@ -49,3 +49,18 @@ Hasil Pengujian:
 
 **What happens when you type some text in the clients?**
 Ketika saya mengetik teks di salah satu client dan menekan Enter, teks tersebut dikirimkan ke server. Server yang berjalan secara asinkronus (menggunakan protokol WebSocket) langsung menerima pesan tersebut dan membroadcast/meneruskan pesan itu ke semua client lain yang sedang terhubung ke server secara real-time. Itulah mengapa pesan dari satu terminal client bisa langsung muncul di layar terminal client lainnya tanpa perlu merefresh.
+
+
+
+## 2.2. Modifying the websocket port
+
+Penjelasan Modifikasi Port:
+Untuk mengubah port menjadi 8080, saya harus memodifikasi dua file karena komunikasi WebSocket melibatkan dua sisi yang harus menyepakati port yang sama:
+
+1. `src/bin/client.rs`: Mengubah string URI dari `"ws://127.0.0.1:2000"` menjadi `"ws://127.0.0.1:8080"`.
+2. `src/bin/server.rs`: Mengubah alamat binding TCP dari `"127.0.0.1:2000"` menjadi `"127.0.0.1:8080"`. Dan juga jangan lupa ubah println nya menjadi println!("listening on port 8080");
+
+**Apakah keduanya menggunakan protokol websocket yang sama? Dan di mana itu didefinisikan?**
+Ya, keduanya menggunakan protokol WebSocket yang sama.
+Pada sisi client, protokol ini secara eksplisit didefinisikan lewat scheme `ws://` di dalam URI (`Uri::from_static("ws://127.0.0.1:8080")`).
+Pada sisi server, meskipun awalnya hanya membuka koneksi TCP standar lewat `TcpListener::bind`, protokol tersebut di-upgrade menjadi WebSocket oleh fungsi `accept_async(stream).await` dari library `tokio_websockets`.

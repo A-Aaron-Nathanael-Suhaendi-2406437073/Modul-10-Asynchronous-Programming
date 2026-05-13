@@ -64,3 +64,18 @@ Untuk mengubah port menjadi 8080, saya harus memodifikasi dua file karena komuni
 Ya, keduanya menggunakan protokol WebSocket yang sama.
 Pada sisi client, protokol ini secara eksplisit didefinisikan lewat scheme `ws://` di dalam URI (`Uri::from_static("ws://127.0.0.1:8080")`).
 Pada sisi server, meskipun awalnya hanya membuka koneksi TCP standar lewat `TcpListener::bind`, protokol tersebut di-upgrade menjadi WebSocket oleh fungsi `accept_async(stream).await` dari library `tokio_websockets`.
+
+
+## 2.3. Small changes. Add some information to client
+
+Hasil Pengujian:
+*(Terminal Server)*
+![Server](images/server_2_3.png)
+
+*(Terminal Client)*
+![Client 1](images/client1_2_3.png)
+![Client 2](images/client2_2_3.png)
+
+**Penjelasan Modifikasi:**
+Untuk menambahkan informasi IP dan Port pengirim (`addr`), modifikasi utama dilakukan di file `server.rs` pada bagian `bcast_tx.send()`. Alasannya karena server adalah pusat/titik kumpul dari semua koneksi. Server yang memiliki informasi alamat dari setiap client yang terhubung. Dengan memodifikasi pesannya di sisi server (`format!("{addr}: {text}")`) sebelum di-broadcast, kita memastikan bahwa seluruh client yang menerima pesan tersebut otomatis mendapatkan informasi identitas pengirimnya tanpa perlu client tersebut mencari tahu sendiri. Sementara itu, untuk penambahan nama "Aaron's Computer", dilakukan di `client.rs` (untuk formatting tampilan lokal) dan di `server.rs` pada pesan New connection agar memudahkan pelacakan log di terminal server.
+

@@ -30,3 +30,22 @@ What is the drop for? `drop(spawner)` berfungsi untuk menutup channel pengiriman
 
 Kenapa program hang saat drop dihapus? Karena Executor (pada baris `while let Ok(task) = self.ready_queue.recv()`) akan terus menunggu di dalam loop untuk mengambil tugas baru. Jika spawner tidak di-drop, channel tidak tertutup. Akibatnya, eksekutor akan mengira masih ada tugas yang akan datang dan terus menunggu selamanya (blocking).
 
+
+
+## 2.1. Original code of broadcast chat
+
+Hasil Pengujian:
+(Berikut adalah screenshot dari 3 terminal client yang sedang saling berbalas pesan)
+
+![Client 1](images/client1.png)
+![Client 2](images/client2.png)
+![Client 3](images/client3.png)
+
+**How to run it:**
+1. Membuka beberapa terminal secara terpisah (4 terminal).
+2. Memastikan setiap terminal sudah berada di direktori project `chat_app`.
+3. Menjalankan satu server pada satu terminal dengan perintah `cargo run --bin server`.
+4. Menjalankan tiga client pada tiga terminal lainnya menggunakan perintah `cargo run --bin client`.
+
+**What happens when you type some text in the clients?**
+Ketika saya mengetik teks di salah satu client dan menekan Enter, teks tersebut dikirimkan ke server. Server yang berjalan secara asinkronus (menggunakan protokol WebSocket) langsung menerima pesan tersebut dan membroadcast/meneruskan pesan itu ke semua client lain yang sedang terhubung ke server secara real-time. Itulah mengapa pesan dari satu terminal client bisa langsung muncul di layar terminal client lainnya tanpa perlu merefresh.

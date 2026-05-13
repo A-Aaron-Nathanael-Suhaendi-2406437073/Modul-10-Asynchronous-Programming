@@ -3,3 +3,30 @@
 
 Penjelasan: Alasan mengapa teks "hey hey" muncul pertama kali adalah karena blok spawner.spawn hanya mengirimkan task ke dalam queue channel, tetapi tidak langsung menjalankannya saat itu juga. Sementara itu, program utama (thread utama) terus berjalan mengeksekusi kode sinkronus secara berurutan, sehingga baris println!("... hey hey") dieksekusi terlebih dahulu. Eksekusi tugas asinkronus ("howdy!" dan "done!") baru benar-benar dijalankan setelah program mencapai baris executor.run(), di mana executor mulai mengambil tugas dari antrean dan menjalankannya satu per satu.
 
+
+## 1.3. Multiple Spawn and removing drop
+
+### 1. Multiple spawn dengan `drop(spawner)` di-comment
+![Multiple Spawn and removing drop](images/Multiple_Spawn_and_removing_drop.png)
+
+Penjelasan:
+Pada screenshot ini, sangat jelas terlihat bahwa setelah mencetak `done2!`, program tidak berhenti dan kursor terminal tampak menggantung (tidak mengembalikan prompt `PS C:\...`). Hal ini membuktikan bahwa program mengalami blocking. Executor masih terjebak di dalam loop menunggu tugas baru yang tidak akan pernah datang karena Spawnernya belum di-drop (ditutup), sehingga Executor mengira masih akan ada pengiriman tugas.
+
+### 2. Multiple spawn dengan `drop(spawner)` di-uncomment
+![Multiple Spawn](images/Multiple_Spawn.png)
+
+Penjelasan:
+Pada screenshot ini, terlihat program berhasil selesai dengan normal. Setelah semua tugas selesai dieksekusi dan teks `done` tercetak, program langsung keluar dan mengembalikan prompt `PS C:\...`. Ini membuktikan bahwa pemanggilan `drop(spawner)` berhasil memberi tahu Executor bahwa tidak ada lagi tugas yang akan dikirim, sehingga loop `recv()` pada Executor bisa dihentikan.
+
+Catatan tambahan: Terlihat juga bahwa urutan teks `done` yang tercetak tidak selalu berurutan (misal: `done!`, `done3!`, `done2!`). Ini menunjukkan sifat concurrent dari program, di mana tugas-tugas dijalankan secara bersamaan dan diselesaikan berdasarkan siapa yang selesai melakukan delay lebih dulu, bukan berdasarkan urutan spawn.
+
+### Q&A
+
+What is the spawner for? Spawner bertugas untuk membuat tugas baru (futures) dan mengirimkannya ke dalam queue channel agar nantinya bisa diambil oleh Executor.
+
+What is the executor for? Executor bertugas mengambil tugas-tugas dari antrean channel tersebut dan menjalankannya (melakukan poll) hingga tugas tersebut benar-benar selesai secara keseluruhan.
+
+What is the drop for? `drop(spawner)` berfungsi untuk menutup channel pengiriman. Ini memberikan sinyal kepada Executor bahwa tidak akan ada lagi tugas baru yang dikirim ke dalam antrean.
+
+Kenapa program hang saat drop dihapus? Karena Executor (pada baris `while let Ok(task) = self.ready_queue.recv()`) akan terus menunggu di dalam loop untuk mengambil tugas baru. Jika spawner tidak di-drop, channel tidak tertutup. Akibatnya, eksekutor akan mengira masih ada tugas yang akan datang dan terus menunggu selamanya (blocking).
+

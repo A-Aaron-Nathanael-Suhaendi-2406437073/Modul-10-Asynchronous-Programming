@@ -79,3 +79,21 @@ Hasil Pengujian:
 **Penjelasan Modifikasi:**
 Untuk menambahkan informasi IP dan Port pengirim (`addr`), modifikasi utama dilakukan di file `server.rs` pada bagian `bcast_tx.send()`. Alasannya karena server adalah pusat/titik kumpul dari semua koneksi. Server yang memiliki informasi alamat dari setiap client yang terhubung. Dengan memodifikasi pesannya di sisi server (`format!("{addr}: {text}")`) sebelum di-broadcast, kita memastikan bahwa seluruh client yang menerima pesan tersebut otomatis mendapatkan informasi identitas pengirimnya tanpa perlu client tersebut mencari tahu sendiri. Sementara itu, untuk penambahan nama "Aaron's Computer", dilakukan di `client.rs` (untuk formatting tampilan lokal) dan di `server.rs` pada pesan New connection agar memudahkan pelacakan log di terminal server.
 
+
+
+## 3.1. Original code
+
+**Hasil Pengujian WebChat:**
+
+*(Simulasi Client pada Web Browser)*
+![Web Browser Testing](images/web_browser.png)
+
+*(Terminal SimpleWebsocketServer)*
+![Server Terminal](images/server_terminal.png)
+
+*(Terminal YewChat Client)*
+![Client Terminal](images/client_terminal.png)
+
+**Penjelasan:**
+Saya telah berhasil melakukan clone pada source code client (YewChat) dan server (SimpleWebsocketServer). Setelah melakukan beberapa penyesuaian dependency pada Webpack dan wasm-bindgen, WebChat dapat terbuka melalui browser di `localhost:8000`. Saya membuka dua jendela browser sebagai simulasi dua client yang berbeda. Ketika saya mengetik pesan di salah satu jendela, pesan tersebut berhasil di-broadcast dan muncul secara real-time di jendela browser lainnya menggunakan protokol WebSocket.
+

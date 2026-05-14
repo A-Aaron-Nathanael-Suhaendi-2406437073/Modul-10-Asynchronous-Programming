@@ -122,3 +122,25 @@ Pada eksperimen ini, saya menambahkan beberapa kreativitas untuk mempercantik ta
     * Merombak kotak pesan (chat bubble) dengan sudut asimetris (`rounded-r-2xl rounded-bl-2xl`) agar memberikan kesan percakapan yang modern.
     * Memperbarui area input obrolan agar terlihat lebih menyatu dengan tombol kirim (send button).
 
+
+## Bonus: Change the websocket server!
+
+**Tampilan YewChat terhubung dengan Server Rust:**
+![YewChat with Rust Server](images/yewchat_rust.png)
+
+**Penjelasan Modifikasi:**
+Pada bagian bonus ini, saya mengganti server WebSocket bawaan (yang menggunakan Node.js) dengan server WebSocket berbasis Rust yang telah dikembangkan pada tutorial sebelumnya (`chat_app`).
+
+Untuk membuat integrasi ini berhasil, saya tidak perlu mengubah port pada client YewChat karena server Rust sudah berjalan di port `8080`. Namun, perubahan signifikan harus dilakukan pada logika server Rust agar dapat saling memahami format data dengan YewChat.
+
+YewChat mengirimkan dan mengharapkan pesan dalam format JSON yang terstruktur (mengandung `messageType` dan `data`). Sementara itu, server Rust sebelumnya hanya mem-forward teks biasa. Oleh karena itu, saya melakukan hal berikut pada server Rust:
+1. Menambahkan dependency `serde` dan `serde_json` untuk melakukan serialisasi dan deserialisasi data.
+2. Membuat struct `WebSocketMessage` di server yang strukturnya sama persis dengan yang diharapkan oleh YewChat.
+3. Menambahkan state manajemen menggunakan `Arc<Mutex<Vec<String>>>` untuk melacak user yang sedang online.
+4. Mengubah logika `handle_connection` agar server dapat merespons `message_type == "register"` dengan menyimpan nama user dan mem-broadcast daftar user online, serta merespons `message_type == "message"` dengan merakit ulang JSON untuk menyertakan nama pengirim (`from`) sebelum di-broadcast.
+
+Perubahan ini berhasil karena server Rust kini berbahasa yang sama (JSON) dengan client YewChat, sehingga fitur login, daftar online users, dan real-time chat dapat berjalan dengan lancar.
+
+**Opini: JavaScript (Node.js) vs Rust Server**
+Menurut pendapat saya, meskipun server JavaScript (Node.js) jauh lebih cepat dan sederhana untuk di-setup dalam skenario prototipe sederhana, saya lebih memilih versi Rust. Alasannya adalah type-safety dan performa. Pada Node.js, sangat mudah terjadi kesalahan runtime jika struktur JSON yang dikirim client tidak sesuai. Namun di Rust, menggunakan `serde`, struktur pesan dikunci secara ketat (strongly-typed). Jika client mengirim JSON yang cacat, server Rust dapat menanganinya dengan aman (`if let Ok(...)`) tanpa menyebabkan seluruh server crash. Selain itu, model concurrency Tokio di Rust menawarkan efisiensi resource yang jauh lebih baik untuk menangani banyak koneksi WebSocket secara bersamaan dibanding arsitektur single-thread Node.js.
+

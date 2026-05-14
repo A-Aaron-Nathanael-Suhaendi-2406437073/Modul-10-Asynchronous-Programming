@@ -97,3 +97,28 @@ Untuk menambahkan informasi IP dan Port pengirim (`addr`), modifikasi utama dila
 **Penjelasan:**
 Saya telah berhasil melakukan clone pada source code client (YewChat) dan server (SimpleWebsocketServer). Setelah melakukan beberapa penyesuaian dependency pada Webpack dan wasm-bindgen, WebChat dapat terbuka melalui browser di `localhost:8000`. Saya membuka dua jendela browser sebagai simulasi dua client yang berbeda. Ketika saya mengetik pesan di salah satu jendela, pesan tersebut berhasil di-broadcast dan muncul secara real-time di jendela browser lainnya menggunakan protokol WebSocket.
 
+
+## 3.2. Add some creativities to the webclient
+
+**Tampilan WebChat setelah Modifikasi:**
+
+*(Halaman Login yang Telah Dimodifikasi)*
+![Login Modified](images/login_modified.png)
+
+*(Halaman Chat yang Telah Dimodifikasi)*
+![Chat Modified](images/chat_modified.png)
+
+**Penjelasan Modifikasi:**
+Pada eksperimen ini, saya menambahkan beberapa kreativitas untuk mempercantik tampilan frontend YewChat dengan memodifikasi class Tailwind CSS di dalam macro `html!` pada file `login.rs` dan `chat.rs`. Berikut adalah detail perubahannya:
+
+1. **Halaman Login (`login.rs`):**
+    * Mengubah latar belakang polos menjadi gradasi biru (`bg-gradient-to-r from-cyan-500 to-blue-500`).
+    * Menambahkan judul "Welcome to AeroChat 🚀" dengan efek drop-shadow.
+    * Memberikan efek lengkungan penuh (`rounded-full`) pada input teks dan tombol, serta menambahkan efek interaktif (`hover`) pada tombol "Join Room".
+
+2. **Halaman Chat (`chat.rs`):**
+    * Mengubah tema sidebar menjadi gelap (dark mode) dengan memberikan indikator status "Online" yang lebih menonjol (lingkaran hijau).
+    * Membersihkan area obrolan utama dengan warna latar belakang yang lebih netral (`bg-slate-50`) dan memberikan padding yang lebih nyaman dipandang.
+    * Merombak kotak pesan (chat bubble) dengan sudut asimetris (`rounded-r-2xl rounded-bl-2xl`) agar memberikan kesan percakapan yang modern.
+    * Memperbarui area input obrolan agar terlihat lebih menyatu dengan tombol kirim (send button).
+

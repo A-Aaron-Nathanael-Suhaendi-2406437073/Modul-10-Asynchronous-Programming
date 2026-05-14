@@ -27,11 +27,12 @@ pub fn login() -> Html {
     };
 
     html! {
-       <div class="bg-gray-800 flex w-screen">
+       <div class="bg-gradient-to-r from-cyan-500 to-blue-500 flex w-screen h-screen">
             <div class="container mx-auto flex flex-col justify-center items-center">
-                <form class="m-4 flex">
-                    <input {oninput} class="rounded-l-lg p-4 border-t mr-0 border-b border-l text-gray-800 border-gray-200 bg-white" placeholder="Username" />
-                    <Link<Route> to={Route::Chat}> <button {onclick} disabled={username.len()<1} class="px-8 rounded-r-lg bg-violet-600	  text-white font-bold p-4 uppercase border-violet-600 border-t border-b border-r" >{"Go Chatting!"}</button></Link<Route>>
+                <div class="text-white text-4xl font-bold mb-8 drop-shadow-md">{"Welcome to AeroChat 🚀"}</div>
+                <form class="m-4 flex shadow-2xl rounded-lg">
+                    <input {oninput} class="rounded-l-full p-4 border-t mr-0 border-b border-l text-gray-800 border-gray-200 bg-white w-64 focus:outline-none focus:ring-2 focus:ring-cyan-300" placeholder="Enter your nickname..." />
+                    <Link<Route> to={Route::Chat}> <button {onclick} disabled={username.len()<1} class="px-8 rounded-r-full bg-gray-900 hover:bg-gray-800 transition-colors duration-200 text-white font-bold p-4 uppercase border-gray-900 border-t border-b border-r disabled:opacity-50" >{"Join Room"}</button></Link<Route>>
                 </form>
             </div>
         </div>
